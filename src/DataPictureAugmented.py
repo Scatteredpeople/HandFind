@@ -6,28 +6,28 @@ import math
 
 
 def augment_images(input_dir, output_dir, num_augmentations=5):
-    # 创建输出目录
+    # Create the output directory
     os.makedirs(output_dir, exist_ok=True)
 
-    # 遍历输入目录中的所有图片文件
+    # Iterate through all image files in the input directory
     for filename in os.listdir(input_dir):
         if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-            # 读取原始图片
+            # Read the original image
             img_path = os.path.join(input_dir, filename)
             img = cv2.imread(img_path)
 
             if img is None:
                 continue
 
-            # 保存原始图片（可选）
+            # Save the original image (optional)
             base_name, ext = os.path.splitext(filename)
             # cv2.imwrite(os.path.join(output_dir, f"{base_name}_original{ext}"), img)
 
-            # 生成增强后的图片
+            # Generate augmented images
             for i in range(num_augmentations):
                 aug_img = img.copy()
 
-                # 随机选择增强类型
+                # Randomly select augmentation type
                 augmentation_type = random.choice(['rotate', 'flip', 'translate', 'noise'])
 
                 if augmentation_type == 'rotate':
@@ -39,7 +39,7 @@ def augment_images(input_dir, output_dir, num_augmentations=5):
                 elif augmentation_type == 'noise':
                     aug_img = add_noise_to_image(aug_img)
 
-                # 保存增强后的图片
+                # Save the augmented image
                 output_path = os.path.join(
                     output_dir,
                     f"{base_name}_aug{i}_{augmentation_type}{ext}"
@@ -52,10 +52,10 @@ def rotate_image(img, max_angle=45):
     height, width = img.shape[:2]
     center = (width // 2, height // 2)
 
-    # 生成旋转矩阵
+    # Generate rotation matrix
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
 
-    # 执行旋转（使用边缘填充）
+    # Perform rotation (using edge padding)
     rotated = cv2.warpAffine(
         img, M, (width, height),
         borderMode=cv2.BORDER_REPLICATE
@@ -64,7 +64,7 @@ def rotate_image(img, max_angle=45):
 
 
 def flip_image(img):
-    return cv2.flip(img, 1)  # 1表示水平翻转
+    return cv2.flip(img, 1)  # 1 indicates horizontal flip
 
 
 def translate_image(img, max_translate=0.2):
@@ -72,10 +72,10 @@ def translate_image(img, max_translate=0.2):
     tx = random.uniform(-max_translate, max_translate) * width
     ty = random.uniform(-max_translate, max_translate) * height
 
-    # 生成平移矩阵
+    # Generate translation matrix
     M = np.float32([[1, 0, tx], [0, 1, ty]])
 
-    # 执行平移（使用边缘填充）
+    # Perform translation (using edge padding)
     translated = cv2.warpAffine(
         img, M, (width, height),
         borderMode=cv2.BORDER_REPLICATE
@@ -90,10 +90,10 @@ def add_noise_to_image(img):
 
 
 if __name__ == "__main__":
-    # 输入输出目录配置
-    input_dir = r"data1\video"  # 原始图片目录
-    output_dir = r"data1\picture_augmented"  # 增强后图片保存目录
+    # Configure input and output directories
+    input_dir = r"data1\video"  # Directory containing original images
+    output_dir = r"data1\picture_augmented"  # Directory to save augmented images
 
-    # 执行数据增强（每个原始图片生成5个增强版本）
+    # Perform data augmentation (generate 5 augmented versions per original image)
     augment_images(input_dir, output_dir, num_augmentations=5)
-    print("图片数据增强完成！增强后的图片已保存至：", output_dir)
+    print("Image data augmentation completed! Augmented images have been saved to:", output_dir)
